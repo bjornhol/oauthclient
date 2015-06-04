@@ -1,0 +1,62 @@
+<html>
+	<head>
+		<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+		<script type="text/javascript" src="bower_components/jso/build/jso.js"></script>
+		<script type="text/javascript" src="bower_components/moment/min/moment-with-locales.min.js"></script>
+		<script type="text/javascript">
+			$(function(){
+				JSO.enablejQuery($);
+
+				var jso = new JSO({
+			        providerID: "agresso",
+			        client_id: "oauthclient",
+			        //redirect_uri: "https://stormy-meadow-1956.herokuapp.com/index.html",
+			        redirect_uri: "https://bolsen01.corp.u4agr.com/oauthclient/index.html",
+			        authorization: "https://bolsen01.corp.u4agr.com/IdentityServer/oauth2/auth",
+			        //authorization: "https://bjornholsts.azurewebsites.net/oauth2/auth",
+			        //scopes: { request: ["everything"]}
+			    });
+
+			    var params = {
+            		// Specify your subscription key
+            		'subscription-key': '01329246fde44942be7ab809d280c681',
+        		};
+
+			    jso.callback();
+
+			    $('#getvalues').on('click', function(){
+			    	jso.ajax({
+				        url: 'https://bjornholhq.azure-api.net/values/api/Values?' + $.param(params),
+				        //url: 'https://bjornholapi.azurewebsites.net/api/values',
+				        oauth: {
+				            scopes: {
+				                request: ["everything"],
+				            }
+				        },
+				        dataType: 'json',
+				        success: function(data) {
+				            $('#feed').prepend('<p class="data"><span class="stamp" data-time="'+ moment().format() +'">' + 'just now</span>: ' + data + '</p>');
+				        }
+				    });
+			    });
+
+			    $('#reset').on('click', function(){
+			    	jso.wipeTokens();
+			    	console.log('Wiped');
+			    });
+
+			    setInterval(function(){
+			    	$('.stamp').each(function(){
+			    		var stamp = $(this)[0];			    		
+			    		$(stamp).text(moment($(stamp).attr('data-time')).fromNow());
+			    	});
+			    }, 1500);
+			});	
+		</script>
+	</head>
+	<body>
+		<button id="getvalues">Get values</button>
+		<button id="reset">Reset</button>
+		<div id="feed"></div>
+	</body>
+</html>
